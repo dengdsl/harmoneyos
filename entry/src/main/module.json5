@@ -52,6 +52,28 @@
             ]
           }
         ]
+      },
+      {
+        "name": 'FuncBAbility',
+        "srcEntry": "./ets/funcability/funcbability.ets",
+        "description": "这个页面从首页拉起的时候会接收到传递过来的自定义参数，实例停止的时候会返回数据给Index",
+        "icon": "$media:layered_image",
+        "label": "$string:func_b_label",
+        "startWindowIcon": "$media:startIcon",
+        "startWindowBackground": "$color:start_window_background",
+        "exported": true,
+        "launchType": "specified",
+        "skills": [
+          {
+            "entities": [
+              "entity.system.home"
+            ],
+            "actions": [
+              "ohos.want.action.home"
+            ]
+          }
+        ]
+
       }
     ],
     "extensionAbilities": [

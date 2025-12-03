@@ -5,26 +5,7 @@ import { JSON } from '@kit.ArkTS'
 @Entry
 @Component
 struct Index {
-  // 声明 context 变量
-  private context: common.UIAbilityContext | null = null
-  
-  aboutToAppear(): void {
-    // 从 AppStorage 获取 context
-    this.context = AppStorage.get<common.UIAbilityContext>('context') || null
-    
-    // 如果 AppStorage 中没有，使用 getContext 作为后备方案
-    if (!this.context) {
-      this.context = getContext(this) as common.UIAbilityContext
-    }
-    
-    // 调试信息
-    console.log('===== Context 调试信息 =====')
-    console.log('context是否存在:', this.context !== null)
-    console.log('startAbility方法类型:', typeof this.context?.startAbility)
-    console.log('bundleName:', this.context?.abilityInfo?.bundleName)
-    console.log('========================')
-  }
-
+  @State btnMessage: string = '冷启动C页面'
   build() {
     Column() {
       Text("在应用内拉起其他UIAbility")
@@ -42,14 +23,7 @@ struct Index {
           right: 10
         })
           .onClick(() => {
-            // 确保 context 存在
-            if (!this.context) {
-              console.error("Context未初始化")
-              return
-            }
-            
-            // 检查 startAbility 方法是否存在
-            console.log('startAbility方法:', typeof this.context.startAbility)
+            const context = this.getUIContext().getHostContext() as common.UIAbilityContext
 
             const wantInfo: Want = {
               deviceId: "",
@@ -62,31 +36,42 @@ struct Index {
                 desc: '这是从index页面传递过来的自定义参数'
               }
             }
-
-            console.log('准备跳转，Want信息:', JSON.stringify(wantInfo))
-            
-            // 安全调用 startAbility
-            try {
-              const promise = this.context.startAbility(wantInfo)
-              if (promise && promise.then) {
-                promise.then(() => {
-                  console.log("成功跳转到A页面")
-                }).catch((err: BusinessError) => {
-                  console.error(`跳转失败 code: ${err.code}, message: ${err.message}`)
-                })
-              } else {
-                console.error('startAbility 返回值异常，可能在模拟器环境下不支持')
-              }
-            } catch (err) {
+            // 调用startAbility拉起其他UIAbility
+            context.startAbility(wantInfo).then(() => {
+              console.log("成功跳转到A页面")
+            }).catch((err: BusinessError) => {
               console.error('调用 startAbility 异常:', JSON.stringify(err))
-            }
+            })
           })
         Button("跳转B页面").type(ButtonType.Normal).borderRadius(6).onClick(() => {
           console.log("跳转到B页面")
+          const context = this.getUIContext().getHostContext() as common.UIAbilityContext
+          const want: Want = {
+            deviceId: '',
+            bundleName: "com.example.myapplication",
+            moduleName: "entry",
+            abilityName: "FuncBAbility",
+            parameters: {
+              req: '这是我的请求信息，返回的信息请用rsp字段进行返回'
+            }
+          }
+          let RESULT_CODE = 1001
+          // 跳转到B页面并监听B页面返回的数据信息
+          context.startAbilityForResult(want).then((data) => {
+            if (data?.resultCode === RESULT_CODE) {
+              // 获取B页面返回的数据信息
+              const rsp = data.want?.parameters?.rsp
+              console.info("从B页面返回的数据 ==>", JSON.stringify(rsp) )
+            }
+            console.error("resultCode ==>", JSON.stringify(data.resultCode))
+          }).catch((err: BusinessError) => {
+            console.error("跳转到B页面失败 ==>", err.message)
+          })
         })
       }.margin({
         top: 50
       })
+
     }.backgroundColor("#f5f5f5")
     .height("100%")
     .width("100%")

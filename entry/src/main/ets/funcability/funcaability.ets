@@ -20,4 +20,10 @@ export default class FuncAAbility extends UIAbility {
 
     })
   }
+
+  onBackground(): void {
+    // 调用ApplicationContext的killAllProcesses方法关闭所有的应用进程
+    const application = this.context.getApplicationContext()
+    application.killAllProcesses()
+  }
 }

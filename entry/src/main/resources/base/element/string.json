@@ -19,6 +19,10 @@
     },
 
     {
+      "name": "func_b_label",
+      "value": "FuncB"
+    },
+    {
       "name": "permission_network_reason",
       "value": "需要访问网络权限以或取数据"
     }
